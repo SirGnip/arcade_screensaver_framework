@@ -1,0 +1,11 @@
+*.pyc
+*.egg-info/
+.mypy_cache/
+venv/
+.idea/
+
+# pyinstaller files
+*.spec
+build/
+dist/
+
