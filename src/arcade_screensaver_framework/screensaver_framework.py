@@ -64,13 +64,13 @@ def main(window_factory):
         for s in screens:
             print(s)
 
-        win1 = window_factory(fullscreen=False, screen=screens[0])
-        win1.set_location(screens[0].x+50, screens[0].y+50)
+        win1 = window_factory(fullscreen=False, screen=screens[1])
+        win1.set_location(screens[1].x+50, screens[1].y+50)
         all_windows.append(win1)
 
-        pyglet_win = pyglet.window.Window(fullscreen=False, screen=screens[1])
+        pyglet_win = pyglet.window.Window(fullscreen=False, screen=screens[0])
         pyglet_win.on_close = close_all
-        pyglet_win.set_location(screens[1].x+50, screens[1].y+50)
+        pyglet_win.set_location(screens[0].x+50, screens[0].y+50)
         all_windows.append(pyglet_win)
 
         arcade.run()  # similar to pyglet.app.run
