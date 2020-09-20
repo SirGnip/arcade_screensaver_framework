@@ -1,10 +1,40 @@
 import random
-import time
 from dataclasses import dataclass
 import arcade
 from arcade_screensaver_framework import screensaver_framework
 
 LINE_COUNT = 300
+
+
+COLORS_GREENS = (
+        (1, 25, 16),
+        (
+            arcade.color.WHITE,
+            arcade.color.LIGHT_GREEN,
+            arcade.color.LIGHT_GREEN,
+            arcade.color.GREEN,
+            arcade.color.GREEN,
+            arcade.color.DARK_GREEN,
+        )
+    )
+
+COLORS_RED_BLUE = (
+        (0x02, 0x05, 0x14),
+        (
+            (0x0F, 0x25, 0xA2),
+            (0x0F, 0x25, 0xA2),
+            (0x0F, 0x25, 0xA2),
+            (0x0F, 0x25, 0xA2),
+            (0xDB, 0x00, 0x00),
+            (0xDB, 0x00, 0x00),
+            (0xDB, 0x00, 0x00),
+            (0xDB, 0x00, 0x00),
+            (0xF7, 0xD4, 0x51),
+        )
+    )
+
+COLORS = random.choice((COLORS_GREENS, COLORS_RED_BLUE))
+
 
 @dataclass
 class Line:
@@ -29,14 +59,7 @@ class Line:
             y,
             length,
             random.uniform(3, 9),
-            random.choice((
-                arcade.color.WHITE,
-                arcade.color.LIGHT_GREEN,
-                arcade.color.LIGHT_GREEN,
-                arcade.color.GREEN,
-                arcade.color.GREEN,
-                arcade.color.DARK_GREEN,
-            ))
+            random.choice(COLORS[1])
         )
 
     def randomize_x(self, screen_width):
@@ -59,7 +82,7 @@ class FlyingLinesScreensaver(screensaver_framework.ScreenSaverWindow):
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
         self.mid_y = int(self.screen_height * 0.33)
         # self.mid_y = self.screen_height // 2
-        arcade.set_background_color((1, 25, 16))  # a darker DARK_GREEN
+        arcade.set_background_color(COLORS[0])
 
         # starting lines
         self.lines = [Line.factory(self.mid_y).randomize_x(self.screen_width) for _ in range(LINE_COUNT)]
