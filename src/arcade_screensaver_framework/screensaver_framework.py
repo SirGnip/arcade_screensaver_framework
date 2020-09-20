@@ -48,10 +48,10 @@ def main(window_factory):
         for s in screens:
             print(s)
 
-        win1 = window_factory(fullscreen=True, screen=screens[0])
+        win1 = window_factory(fullscreen=True, screen=screens[1])
         all_windows.append(win1)
 
-        pyglet_win = pyglet.window.Window(fullscreen=True, screen=screens[1])
+        pyglet_win = pyglet.window.Window(fullscreen=True, screen=screens[0])
         pyglet_win.on_close = close_all
         all_windows.append(pyglet_win)
 

@@ -1,3 +1,4 @@
+import time
 import arcade
 from arcade_screensaver_framework import screensaver_framework
 
@@ -13,6 +14,7 @@ class MinimalSaver(screensaver_framework.ScreenSaverWindow):
         self.x += self.xvel
         if self.x < 0 or self.x > self.screen_width:
             self.xvel *= -1
+        time.sleep(0.03)
 
     def on_draw(self):
         arcade.start_render()
