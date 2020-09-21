@@ -14,18 +14,25 @@ class ScreenSaverWindow(arcade.Window):
     """Base class for all screen saver windows"""
     def __init__(self, fullscreen, screen):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=fullscreen, screen=screen)
+        self.first_mouse_motion_event = True
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        print('on mouse press')
         close_all()
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
-        pass
-        # print("on mouse motion", x, y, dx, dy)
-        # window always gets an initial mouse motion event?
+        # Window almost always gets an initial on_mouse_motion event when window opens. Ignore it.
+        if self.first_mouse_motion_event:
+            self.first_mouse_motion_event = False
+            return
+        close_all()
+
+    def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
+        close_all()
 
     def on_key_press(self, key, modifiers):
-        print("on key press")
+        close_all()
+
+    def on_key_release(self, symbol: int, modifiers: int):
         close_all()
 
 
