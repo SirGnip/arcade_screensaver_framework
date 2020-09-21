@@ -1,10 +1,12 @@
+from typing import Dict
 import random
+import time
 from dataclasses import dataclass
 import arcade
 from arcade_screensaver_framework import screensaver_framework
 
-LINE_COUNT = 300
-
+LINE_COUNT = 400
+LINE_WIDTH = 8
 
 COLORS_GREENS = (
         (1, 25, 16),
@@ -40,7 +42,7 @@ COLORS = random.choice((COLORS_GREENS, COLORS_RED_BLUE))
 class Line:
     x: float
     y: float
-    len: float
+    length: float
     x_vel: float
     color: arcade.Color
 
@@ -69,9 +71,6 @@ class Line:
     def move(self):
         self.x += self.x_vel
 
-    def draw(self):
-        arcade.draw_line(self.x, self.y, self.x + self.len, self.y, self.color, 5)
-
     def can_reap(self, screen_width):
         return self.x > screen_width
 
@@ -88,6 +87,8 @@ class FlyingLinesScreensaver(arcade.Window):
         self.lines = [Line.factory(self.mid_y).randomize_x(self.screen_width) for _ in range(LINE_COUNT)]
 
     def update(self, dt):
+        time.sleep(0.025)
+
         for line in self.lines:
             line.move()
 
@@ -100,8 +101,17 @@ class FlyingLinesScreensaver(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        for line in self.lines:
-            line.draw()
+        points_per_color: Dict[arcade.Color, arcade.PointList] = {}
+        for l in self.lines:
+            color_specific_point_list = points_per_color.setdefault(l.color, [])
+            color_specific_point_list.append((l.x, l.y))
+            color_specific_point_list.append((l.x + l.length, l.y))
+        # Need to sort by key so the colors are always drawn in a stable order.
+        # Without sorting, the draw order of the colors would pop occasionally
+        # because dicts do not preserve key ordering.
+        for color in sorted(points_per_color.keys()):
+            # draw_lines() is much faster than draw_line()
+            arcade.draw_lines(points_per_color[color], color, LINE_WIDTH)
 
 
 if __name__ == "__main__":
