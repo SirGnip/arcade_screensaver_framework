@@ -5,6 +5,7 @@ import arcade
 SCREEN_WIDTH = 1280  # 720p resolution
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Arcade screen saver"
+all_windows = []
 
 
 class ScreenSaverWindow(arcade.Window):
@@ -26,13 +27,36 @@ class ScreenSaverWindow(arcade.Window):
         close_all()
 
 
-all_windows = []
-
-
 def close_all():
     for win in all_windows:
         print("closing", win)
         win.close()
+
+
+def get_preferred_screen(screens):
+    """Choose the screen with the most pixels to show the screensaver on"""
+    ordered_screens = [(s.width*s.height, idx, s) for idx, s in enumerate(screens)]
+    ordered_screens.sort()  # sort by # of pixels, then screen index, then object
+    return ordered_screens[-1][2]  # return screen object from end of sorted list
+
+
+def make_windows(window_factory, is_fullscreen):
+    display = pyglet.canvas.get_display()
+    screens = display.get_screens()
+    preferred_screen = get_preferred_screen(screens)
+    for screen in screens:
+        print(screen)
+        if screen == preferred_screen:
+            win = window_factory(fullscreen=is_fullscreen, screen=screen)
+            if not is_fullscreen:
+                win.set_location(screen.x + 50, screen.y + 50)
+            all_windows.append(win)
+        else:
+            pyglet_win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
+            pyglet_win.on_close = close_all
+            if not is_fullscreen:
+                pyglet_win.set_location(screen.x + 50, screen.y + 50)
+            all_windows.append(pyglet_win)
 
 
 def main(window_factory):
@@ -43,37 +67,11 @@ def main(window_factory):
         print("screen saver config", sys.argv)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
         print("screen saver fullscreen", sys.argv)
-        display = pyglet.canvas.get_display()
-        screens = display.get_screens()
-        for s in screens:
-            print(s)
-
-        win1 = window_factory(fullscreen=True, screen=screens[1])
-        all_windows.append(win1)
-
-        pyglet_win = pyglet.window.Window(fullscreen=True, screen=screens[0])
-        pyglet_win.on_close = close_all
-        all_windows.append(pyglet_win)
-
+        make_windows(window_factory, True)
         arcade.run()  # similar to pyglet.app.run
-
     else:
         print("screen saver windowed test mode")
-        display = pyglet.canvas.get_display()
-        screens = display.get_screens()
-        for s in screens:
-            print(s)
-
-        win1 = window_factory(fullscreen=False, screen=screens[1])
-        win1.set_location(screens[1].x+50, screens[1].y+50)
-        all_windows.append(win1)
-
-        pyglet_win = pyglet.window.Window(fullscreen=False, screen=screens[0])
-        pyglet_win.on_close = close_all
-        pyglet_win.set_location(screens[0].x+50, screens[0].y+50)
-        all_windows.append(pyglet_win)
-
+        make_windows(window_factory, False)
         arcade.run()  # similar to pyglet.app.run
-
 
 
