@@ -1,4 +1,6 @@
 import sys
+import ctypes
+from pathlib import Path
 import pyglet
 import arcade
 
@@ -60,18 +62,23 @@ def make_windows(window_factory, is_fullscreen):
 
 
 def main(window_factory):
+    # Screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
     print("Command line args:", sys.argv)
-    if len(sys.argv) >= 2 and sys.argv[1] == "/p":
-        print("screen saver preview", sys.argv)
-    elif len(sys.argv) >= 2 and sys.argv[1] == "/c":
-        print("screen saver config", sys.argv)
+    if len(sys.argv) >= 2 and sys.argv[1].startswith("/p"):
+        # mini-screen preview of screen saver
+        print("screen saver launch preview", sys.argv)
+    elif len(sys.argv) >= 2 and sys.argv[1].startswith("/c"):
+        # settings dialog box
+        name = Path(sys.argv[0]).stem
+        MB_ICONINFORMATION = 0x00000040
+        ctypes.windll.user32.MessageBoxW(0, f"This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
+        # run screen saver (in fullscreen mode)
         print("screen saver fullscreen", sys.argv)
         make_windows(window_factory, True)
-        arcade.run()  # similar to pyglet.app.run
+        arcade.run()
     else:
+        # launch with no arguments to test screen saver in windowed mode
         print("screen saver windowed test mode")
         make_windows(window_factory, False)
-        arcade.run()  # similar to pyglet.app.run
-
-
+        arcade.run()
