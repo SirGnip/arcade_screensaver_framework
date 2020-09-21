@@ -76,9 +76,9 @@ class Line:
         return self.x > screen_width
 
 
-class FlyingLinesScreensaver(screensaver_framework.ScreenSaverWindow):
+class FlyingLinesScreensaver(arcade.Window):
     def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen, screen)
+        super().__init__(fullscreen=fullscreen, screen=screen)
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
         self.mid_y = int(self.screen_height * 0.33)
         # self.mid_y = self.screen_height // 2

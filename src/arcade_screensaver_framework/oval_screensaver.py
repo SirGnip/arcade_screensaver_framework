@@ -45,11 +45,11 @@ class OvalShape:
         self.shape_list.draw()
 
 
-class MyScreensaver(screensaver_framework.ScreenSaverWindow):
+class MyScreensaver(arcade.Window):
     """ Main application class. """
 
     def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen, screen)
+        super().__init__(fullscreen=fullscreen, screen=screen)
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
 
         self.shapes = []

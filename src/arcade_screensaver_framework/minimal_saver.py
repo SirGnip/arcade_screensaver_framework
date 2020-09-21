@@ -3,9 +3,9 @@ import arcade
 from arcade_screensaver_framework import screensaver_framework
 
 
-class MinimalSaver(screensaver_framework.ScreenSaverWindow):
+class MinimalSaver(arcade.Window):
     def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen, screen)
+        super().__init__(fullscreen=fullscreen, screen=screen)
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
         self.x = 0
         self.xvel = 15

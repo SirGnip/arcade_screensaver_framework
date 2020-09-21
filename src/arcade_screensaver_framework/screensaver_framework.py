@@ -10,33 +10,30 @@ SCREEN_TITLE = "Arcade screen saver"
 all_windows = []
 
 
-class ScreenSaverWindow(arcade.Window):
-    """Base class for all screen saver windows"""
-    def __init__(self, fullscreen, screen):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=fullscreen, screen=screen)
-        self.first_mouse_motion_event = True
-
-    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        close_all()
-
-    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
-        # Window almost always gets an initial on_mouse_motion event when window opens. Ignore it.
-        if self.first_mouse_motion_event:
-            self.first_mouse_motion_event = False
-            return
-        close_all()
-
-    def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
-        close_all()
-
-    def on_key_press(self, key, modifiers):
-        close_all()
-
-    def on_key_release(self, symbol: int, modifiers: int):
-        close_all()
+# Event handlers that can be applied to instances of Arcade.Window and Pyglet.window.Window
+def on_keyboard_press(self, symbol, modifiers):
+    close_all_windows()
 
 
-def close_all():
+def on_mouse_press(self, x, y, button, modifiers):
+    close_all_windows()
+
+
+def on_mouse_motion(self, x, y, dx, dy):
+    # A Window almost always gets an initial on_mouse_motion event when window opens.
+    # Ignore the first motion event. I think a motion event is triggered when the
+    # window is opening and the mouse cursor is already inside the window's boundary.
+    if self.first_mouse_motion_event:
+        self.first_mouse_motion_event = False
+        return
+    close_all_windows()
+
+
+def on_close(self):
+    close_all_windows()
+
+
+def close_all_windows():
     for win in all_windows:
         print("closing", win)
         win.close()
@@ -49,26 +46,37 @@ def get_preferred_screen(screens):
     return ordered_screens[-1][2]  # return screen object from end of sorted list
 
 
-def make_windows(window_factory, is_fullscreen):
+def make_windows(screensaver_window_class, is_fullscreen):
+    # Monkeypatch Arcade and Pyglet window classes (for easier code-reuse)
+    screensaver_window_class.on_key_press = on_keyboard_press
+    screensaver_window_class.on_mouse_press = on_mouse_press
+    screensaver_window_class.on_mouse_motion = on_mouse_motion
+    screensaver_window_class.on_close = on_close
+
+    pyglet.window.Window.on_key_press = on_keyboard_press
+    pyglet.window.Window.on_mouse_press = on_mouse_press
+    pyglet.window.Window.on_mouse_motion = on_mouse_motion
+    pyglet.window.Window.on_close = on_close
+
     display = pyglet.canvas.get_display()
     screens = display.get_screens()
     preferred_screen = get_preferred_screen(screens)
     for screen in screens:
         print(screen)
         if screen == preferred_screen:
-            win = window_factory(fullscreen=is_fullscreen, screen=screen)
-            if not is_fullscreen:
-                win.set_location(screen.x + 50, screen.y + 50)
-            all_windows.append(win)
+            # Arcade managed screen with screen saver on it
+            win = screensaver_window_class(fullscreen=is_fullscreen, screen=screen)
         else:
-            pyglet_win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
-            pyglet_win.on_close = close_all
-            if not is_fullscreen:
-                pyglet_win.set_location(screen.x + 50, screen.y + 50)
-            all_windows.append(pyglet_win)
+            # Pyglet managed screen that is simply left clear
+            win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
+        win.set_mouse_visible(False)
+        win.first_mouse_motion_event = True
+        if not is_fullscreen:
+            win.set_location(screen.x + 50, screen.y + 50)
+        all_windows.append(win)
 
 
-def main(window_factory):
+def main(screensaver_window_class):
     # Screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
     print("Command line args:", sys.argv)
     if len(sys.argv) >= 2 and sys.argv[1].startswith("/p"):
@@ -80,12 +88,12 @@ def main(window_factory):
         MB_ICONINFORMATION = 0x00000040
         ctypes.windll.user32.MessageBoxW(0, f"This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
-        # run screen saver (in fullscreen mode)
+        # run screen saver, in fullscreen mode
         print("screen saver fullscreen", sys.argv)
-        make_windows(window_factory, True)
+        make_windows(screensaver_window_class, True)
         arcade.run()
     else:
         # launch with no arguments to test screen saver in windowed mode
         print("screen saver windowed test mode")
-        make_windows(window_factory, False)
+        make_windows(screensaver_window_class, False)
         arcade.run()
