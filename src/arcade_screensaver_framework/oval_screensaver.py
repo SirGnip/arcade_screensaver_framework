@@ -53,12 +53,20 @@ class MyScreensaver(arcade.Window):
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
 
         self.shapes = []
+        min_size = int(self.screen_height * 0.06)  # 75 at 3072x1280
+        max_size = int(self.screen_height * 0.20)  # 250 at 3072x1280
 
-        for i in range(150):
+        # Adding width+height as multiplying width*height skewed the number of ovals too be too
+        # little on smaller screens. An additive ratio scaled better.
+        # Starting point: 150 ovals in 3072x1280.
+        oval_count = int((self.screen_width + self.screen_height) * 0.0345)
+        print(f"Oval count: {oval_count}, min/max size: {min_size} {max_size}")
+
+        for i in range(oval_count):
             x = random.randrange(0, self.screen_width)
             y = random.randrange(0, self.screen_height)
-            width = random.randrange(75, 250)
-            height = random.randrange(75, 250)
+            width = random.randrange(min_size, max_size)
+            height = random.randrange(min_size, max_size)
             angle = random.randrange(0, 360)
 
             shape = OvalShape(x, y, width, height, angle)

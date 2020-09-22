@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import arcade
 from arcade_screensaver_framework import screensaver_framework
 
-LINE_COUNT = 400
 LINE_WIDTH = 8
 
 COLORS_GREENS = (
@@ -47,11 +46,10 @@ class Line:
     color: arcade.Color
 
     @staticmethod
-    def factory(mid_y):
+    def factory(mid_y, sigma):
         length = random.randint(75, 400)
         start_x = 0 - length - 5  # make sure new Lines start off screen
-        # y = random.randint(mid_y - 200, mid_y + 200) # uniform distribution
-        y = random.normalvariate(mid_y, 60)
+        y = random.normalvariate(mid_y, sigma)
         if y > mid_y:
             # spread out distribution of values above the mean line
             y = ((y - mid_y) * 4.0) + mid_y
@@ -78,13 +76,18 @@ class Line:
 class FlyingLinesScreensaver(arcade.Window):
     def __init__(self, fullscreen, screen):
         super().__init__(fullscreen=fullscreen, screen=screen)
-        left, self.screen_width, bottom, self.screen_height = self.get_viewport()
-        self.mid_y = int(self.screen_height * 0.33)
-        # self.mid_y = self.screen_height // 2
         arcade.set_background_color(COLORS[0])
 
-        # starting lines
-        self.lines = [Line.factory(self.mid_y).randomize_x(self.screen_width) for _ in range(LINE_COUNT)]
+        left, self.screen_width, bottom, self.screen_height = self.get_viewport()
+        print(f"screen width/height={self.screen_width}/{self.screen_height}")
+        # Scale values for different size screens
+        self.line_count = int((self.screen_height + self.screen_width)* 0.092)  # baseline: count=400 at 3072x1280
+        self.mid_y = int(self.screen_height * 0.33)
+        self.sigma = self.screen_height * 0.0469  # baseline: sigma=60 at height of 1280
+        print(f"line_count={self.line_count} mid_y={self.mid_y} sigma={self.sigma}")
+
+        # create initial lines with starting position
+        self.lines = [Line.factory(self.mid_y, self.sigma).randomize_x(self.screen_width) for _ in range(self.line_count)]
 
     def update(self, dt):
         time.sleep(0.025)
@@ -96,8 +99,8 @@ class FlyingLinesScreensaver(arcade.Window):
         self.lines = [line for line in self.lines if not line.can_reap(self.screen_width)]
 
         # create new lines
-        while len(self.lines) < LINE_COUNT:
-            self.lines.append(Line.factory(self.mid_y))
+        while len(self.lines) < self.line_count:
+            self.lines.append(Line.factory(self.mid_y, self.sigma))
 
     def on_draw(self):
         arcade.start_render()

@@ -22,5 +22,5 @@ A very simple Python framework for making screen savers for Windows.  Uses the [
     # Second arg: name of screen saver script with NO .py extension
     install_screensaver.bat src\arcade\screensaver_framework minimal_saver
     
-    # Once complete, open up the ""Screen Saver Settings" Windows dialog and
+    # Once complete, open up the "Screen Saver Settings" Windows dialog and
     # choose your screensaver from the dropdown list.  
