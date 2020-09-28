@@ -2,18 +2,11 @@ import random
 import time
 import arcade
 from arcade_screensaver_framework import screensaver_framework
-import common.actor
+from gnp.arcadelib.actor import Actor, ActorList
+from gnp.arcadelib import scriptutl
 
 
-def sleep(delay: float):
-    """Utility generator that blocks for the given amount of time"""
-    start = time.time()
-    end = start + delay
-    while time.time() < end:
-        yield
-
-
-class RingActor(common.actor.Actor):
+class RingActor(Actor):
     def __init__(self, x, y, radius_vel, color):
         self.x = x
         self.y = y
@@ -23,7 +16,7 @@ class RingActor(common.actor.Actor):
         self.lifetime_start = 0.7
         self.lifetime = self.lifetime_start
 
-    def update(self):
+    def update(self, delta_time: float):
         self.lifetime -= 1/60.0
         self.radius += self.radius_vel
 
@@ -48,15 +41,15 @@ class RingActorLeader(RingActor):
         # sleep and then spawn a new ring a few times
         j = 1.0
         jv = 0.15
-        for _ in range(6):
-            yield from sleep(0.17)
+        for _ in range(4):
+            yield from scriptutl.sleep(0.17)
             jitx = random.uniform(-j, j)
             jity = random.uniform(-j, j)
             jitvel = random.uniform(-jv, jv)
             self.actor_list.append(RingActor(self.x + jitx, self.y + jity, self.radius_vel + jitvel, self.color))
 
-    def update(self):
-        super().update()
+    def update(self, delta_time: float):
+        super().update(delta_time)
         try:
             next(self.script)
         except StopIteration:
@@ -70,15 +63,15 @@ class RaindropScreensaver(arcade.Window):
 
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
         print(f"screen width/height={self.screen_width}/{self.screen_height}")
-        self.actors = common.actor.ActorList()
+        self.actors = ActorList()
 
-    def update(self, dt):
+    def update(self, delta_time: float):
         time.sleep(0.025)
         if random.randint(1, 4) == 1:
             x = random.randint(0, self.screen_width)
             y = random.randint(0, self.screen_height)
             self.actors.append(RingActorLeader(self.actors, x, y, 6.0, arcade.color.BLUE_VIOLET))
-        self.actors.update()
+        self.actors.update(delta_time)
 
     def on_draw(self):
         arcade.start_render()

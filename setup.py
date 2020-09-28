@@ -22,6 +22,6 @@ setuptools.setup(
     install_requires=[
         # 3rd party dependencies
         "arcade==2.4.2",
-        "arcade_examples @ http://github.com/SirGnip/arcade_examples/tarball/master",
+        "arcade_examples @ http://github.com/SirGnip/arcade_examples/tarball/8f671c80218aa2086bf38a9bd8978a0fd2ecebc0",
     ],
 )
