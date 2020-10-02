@@ -26,7 +26,7 @@ rmdir /S /Q build dist
 @echo.
 @echo.
 @echo ===== Run pyinstaller to make .exe =====
-pyinstaller %1\%2.py --add-binary "venv\Lib\site-packages\pymunk\chipmunk.dll;." --add-binary "venv\Lib\site-packages\arcade\soloud\soloud*.dll;.\arcade\soloud" --add-data "venv\Lib\site-packages\arcade\resources;.\arcade\resources" --windowed --onefile
+pyinstaller %1\%2.py --windowed --onefile
 echo.
 dir dist\
 

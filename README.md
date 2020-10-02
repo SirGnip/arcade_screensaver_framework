@@ -20,12 +20,18 @@ A very simple Python framework for making screen savers for Windows.  Uses the [
 # How to install your screen saver to Windows 
 
     # cd into repo's top directory (not src!)
-    cd ...
-       
-    # Run this from a Windows Command Prompt opened as administrator
+    cd <MY_REPO>
+    
+    # Open a Windows Command Prompt as administrator
+    
+    # Run this command...
     # First argument: path to screen saver script
     # Second arg: name of screen saver script with NO .py extension
     install_screensaver.bat src\arcade_screensaver_framework\examples minimal_saver
     
     # Once complete, open up the "Screen Saver Settings" Windows dialog and
-    # choose your screensaver from the dropdown list.  
+    # choose your screensaver from the dropdown list.
+    
+    # Note: The "Screen Saver Settings" dialog will feel very "laggy" when your custom
+    # screen saver is selected as the dialog is running the screen saver application
+    # mutiple times (which takes a couple seconds to start) as you click through the options.
