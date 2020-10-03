@@ -1,11 +1,10 @@
-import time
 import random
-from typing import Generator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import arcade
 from gnp.arcadelib.actor import Actor, ActorList
-from gnp.arcadelib import scriptutl
 from arcade_screensaver_framework import screensaver_framework
+from arcade_curtains import Curtains, BaseScene, KeyFrame, Sequence
+from arcade_curtains.animation import AnimationManagerProxy
 
 
 @dataclass
@@ -17,31 +16,36 @@ class Arc(Actor):
     start_angle: float
     end_angle: float
     line_width: float
-    rotation: float
-    rotation_velocity: float
-    anim_script: Generator[None, None, None] = field(init=False)
+    angle: float
+    angle_velocity: float
 
     def __post_init__(self):
-        self.anim_script = self.script()
+        self.animate = AnimationManagerProxy(self)
 
-    def update(self, delta_time: float):
-        if self.anim_script:
-            try:
-                next(self.anim_script)
-            except StopIteration:
-                pass
-        self.rotation += self.rotation_velocity
+    def start_anim(self):
+        if random.random() > 0.85:
+            return
+        delay1 = random.uniform(2.0, 30.0)
+        anim1 = random.uniform(10.0, 20.0)
+        delay2 = random.uniform(2.0, 30.0)
+        anim2 = random.uniform(10.0, 20.0)
+        k1 = KeyFrame(
+            angle=0
+        )
+        k2 = KeyFrame(
+            angle=random.choice((-90, -180, -270, -360, 90, 180, 270, 360))
+        )
+        seq = Sequence(loop=True)
+        # animate to given rotation and then bounce back
+        seq.add_keyframe(0, k1)
+        seq.add_keyframe(delay1, k1)
+        seq.add_keyframe(delay1+anim1, k2)
+        seq.add_keyframe(delay1+anim1+delay2, k2)
+        seq.add_keyframe(delay1+anim1+delay2+anim2, k1)
+        self.animate(seq)
 
     def draw(self):
-        arcade.draw_arc_outline(self.x, self.y, self.radius * 2, self.radius * 2, self.color, self.start_angle, self.end_angle, self.line_width, self.rotation)
-
-    def script(self):
-        """Generator based 'script' to drive animation"""
-        while True:
-            self.rotation_velocity = 0.0
-            yield from scriptutl.sleep(random.uniform(1.0, 30.0))
-            self.rotation_velocity = random.choice((-1.0, 1.0))
-            yield from scriptutl.sleep(random.uniform(1.0, 5.0))
+        arcade.draw_arc_outline(self.x, self.y, self.radius * 2, self.radius * 2, self.color, self.start_angle, self.end_angle, self.line_width, self.angle)
 
     def can_reap(self):
         return False
@@ -69,8 +73,9 @@ class Coil(Actor):
             arc = Arc(self.x, self.y, radius, color, angle_start, angle_end, LINE_WIDTH, 0, 0.0)
             self.arcs.append(arc)
 
-    def update(self, delta_time: float):
-        self.arcs.update(delta_time)
+    def start_anim(self):
+        for arc in self.arcs:
+            arc.start_anim()
 
     def draw(self):
         self.arcs.draw()
@@ -79,47 +84,30 @@ class Coil(Actor):
         return False
 
 
-class RotatingArcsSaver(arcade.Window):
-    def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen=fullscreen, screen=screen)
-        left, self.screen_width, bottom, self.screen_height = self.get_viewport()
-        # self.tilt = 0
-
+class SingleScene(BaseScene):
+    def setup(self, win):
+        left, win.screen_width, bottom, win.screen_height = win.get_viewport()
         self.coils = ActorList()
         for _ in range(20):
-            x = random.randint(0, self.screen_width)
-            y = random.randint(0, self.screen_height)
+            x = random.randint(0, win.screen_width)
+            y = random.randint(0, win.screen_height)
             arc_count = random.randint(3, 7)
             self.coils.append(Coil(x, y, 25, 25, arc_count))
 
-        # LINE_WIDTH = 20
-        # x = self.screen_width // 2
-        # y = self.screen_height // 2
-        # self.arcs = ActorList()
-        # for radius in range(25, 400, 25):
-        # for radius in (100,):
-        #     angle_start = random.choice((0, 90, 180, 270))
-        #     angle_size = random.choice((90, 180, 270))
-        #     angle_end = angle_start + angle_size
-        #     rot_vel = random.choice((-2, -1, -0.5, 0, 0, 0, 0.5, 1, 2))
-        #     arc = Arc(x, y, radius, arcade.color.MIDNIGHT_BLUE, angle_start, angle_end, LINE_WIDTH, 0, rot_vel)
-        #     self.arcs.append(arc)
+    def enter_scene(self, previous_scene):
+        for coil in self.coils:
+            coil.start_anim()
 
-    def update(self, delta):
-        time.sleep(0.03)
-        # self.arcs.update(delta)
-        self.coils.update(delta)
-
-    def on_draw(self):
-        arcade.start_render()
-        # self.arcs.draw()
+    def draw(self):
         self.coils.draw()
 
-        # width = 15
-        # arcade.draw_arc_outline(200, 200, 175, 175, arcade.color.MIDNIGHT_BLUE, 0, 270, width, self.tilt * 2)
-        # arcade.draw_arc_outline(200, 200, 125, 125, arcade.color.MIDNIGHT_BLUE, 0, 90, width, self.tilt * 2)
-        # arcade.draw_arc_outline(200, 200, 100, 100, arcade.color.MIDNIGHT_BLUE, 0, 270, width, self.tilt)
-        # arcade.draw_arc_outline(200, 200, 75, 75, arcade.color.MIDNIGHT_BLUE, 0, 180, width, -self.tilt)
+
+class RotatingArcsSaver(arcade.Window):
+    def __init__(self, fullscreen, screen):
+        super().__init__(fullscreen=fullscreen, screen=screen)
+        self.curtains = Curtains(self)
+        self.curtains.add_scene('single', SingleScene(self))
+        self.curtains.set_scene('single')
 
 
 if __name__ == "__main__":

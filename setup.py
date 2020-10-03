@@ -22,6 +22,7 @@ setuptools.setup(
     install_requires=[
         # Arcade included PyInstaller "hook": https://github.com/pythonarcade/arcade/issues/754
         "arcade>=2.4.3",
+        "arcade-curtains>=0.2.0",
         # Pymunk released fix for PyInstaller with --onefile: https://github.com/viblo/pymunk/issues/154
         "pymunk>=5.7.0",
         "arcade_examples @ http://github.com/SirGnip/arcade_examples/tarball/8f671c80218aa2086bf38a9bd8978a0fd2ecebc0",
