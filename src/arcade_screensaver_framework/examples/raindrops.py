@@ -30,7 +30,7 @@ class RingActor(Actor):
 
 
 class RingActorLeader(RingActor):
-    """The first raindrop tha spawns other rings"""
+    """The first raindrop that spawns other rings"""
     def __init__(self, actor_list, x, y, radius_vel, color):
         super().__init__(x, y, radius_vel, color)
         self.actor_list = actor_list
