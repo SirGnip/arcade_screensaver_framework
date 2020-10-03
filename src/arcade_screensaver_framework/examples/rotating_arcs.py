@@ -8,7 +8,7 @@ from arcade_curtains.animation import AnimationManagerProxy
 
 
 COIL_COUNT = 20
-
+MAX_ALPHA = 200
 
 @dataclass
 class Arc(Actor):
@@ -63,7 +63,7 @@ class Coil(Actor):
     radius_step: float
     arc_count: int
     arcs: ActorList = None
-    alpha: float = 200
+    alpha: float = 0
     alive: bool = True
 
     def __post_init__(self):
@@ -79,23 +79,20 @@ class Coil(Actor):
             arc = Arc(self, self.x, self.y, radius, color, angle_start, angle_end, LINE_WIDTH, 0, 0.0)
             self.arcs.append(arc)
 
-    def start_anim(self):
+    def start_anim(self, parent_scene):
         for arc in self.arcs:
             arc.start_anim()
         alive_duration = random.uniform(10.0, 90.0)
         seq = Sequence()
         fade_duration = 6.0
-        seq.add_keyframe(0, KeyFrame(alpha=0))
-        seq.add_keyframe(fade_duration, KeyFrame(alpha=self.alpha))
-        seq.add_keyframe(fade_duration + alive_duration, KeyFrame(alpha=self.alpha))
-        seq.add_keyframe(fade_duration + alive_duration + fade_duration, KeyFrame(alpha=0), callback=self.coil_done)
+        seq.add_keyframe(0.0, KeyFrame(alpha=0))
+        seq.add_keyframe(fade_duration, KeyFrame(alpha=MAX_ALPHA))
+        seq.add_keyframe(fade_duration + alive_duration, KeyFrame(alpha=MAX_ALPHA))
+        seq.add_keyframe(fade_duration + alive_duration + fade_duration, KeyFrame(alpha=0), callback=parent_scene.add_coil)
         self.animate(seq)
 
     def coil_done(self):
         self.alive = False
-
-    def update(self, time_delta):
-        pass
 
     def draw(self):
         self.arcs.draw()
@@ -108,8 +105,6 @@ class SingleScene(BaseScene):
     def setup(self, win):
         left, self.screen_width, bottom, self.screen_height = win.get_viewport()
         self.coils = ActorList()
-        for _ in range(COIL_COUNT):
-            self.add_coil()
 
     def add_coil(self):
         x = random.randint(0, self.screen_width)
@@ -117,18 +112,14 @@ class SingleScene(BaseScene):
         arc_count = random.randint(3, 7)
         coil = Coil(x, y, 25, 25, arc_count)
         self.coils.append(coil)
-        return coil
+        coil.start_anim(self)
 
     def enter_scene(self, previous_scene):
-        for coil in self.coils:
-            coil.start_anim()
+        for _ in range(COIL_COUNT):
+            self.add_coil()
 
     def draw(self):
-        self.coils.update(0)
         self.coils.draw()
-        if len(self.coils) < COIL_COUNT:
-            coil = self.add_coil()
-            coil.start_anim()
 
 
 class RotatingArcsSaver(arcade.Window):
