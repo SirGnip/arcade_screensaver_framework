@@ -7,8 +7,12 @@ from arcade_curtains import Curtains, BaseScene, KeyFrame, Sequence
 from arcade_curtains.animation import AnimationManagerProxy
 
 
+COIL_COUNT = 20
+
+
 @dataclass
 class Arc(Actor):
+    parent_coil: object
     x: float
     y: float
     radius: float
@@ -25,9 +29,9 @@ class Arc(Actor):
     def start_anim(self):
         if random.random() > 0.85:
             return
-        delay1 = random.uniform(2.0, 30.0)
+        delay1 = random.uniform(0.5, 30.0)
         anim1 = random.uniform(10.0, 20.0)
-        delay2 = random.uniform(2.0, 30.0)
+        delay2 = random.uniform(0.5, 30.0)
         anim2 = random.uniform(10.0, 20.0)
         k1 = KeyFrame(
             angle=0
@@ -45,7 +49,7 @@ class Arc(Actor):
         self.animate(seq)
 
     def draw(self):
-        arcade.draw_arc_outline(self.x, self.y, self.radius * 2, self.radius * 2, self.color, self.start_angle, self.end_angle, self.line_width, self.angle)
+        arcade.draw_arc_outline(self.x, self.y, self.radius * 2, self.radius * 2, self.color + (self.parent_coil.alpha,), self.start_angle, self.end_angle, self.line_width, self.angle)
 
     def can_reap(self):
         return False
@@ -59,47 +63,72 @@ class Coil(Actor):
     radius_step: float
     arc_count: int
     arcs: ActorList = None
+    alpha: float = 200
+    alive: bool = True
 
     def __post_init__(self):
         LINE_WIDTH = 20
-        ALPHA = 200
+        self.animate = AnimationManagerProxy(self)
         self.arcs = ActorList()
         radii = [r*self.radius_step+self.start_radius for r in range(self.arc_count)]
         for idx, radius in enumerate(radii):
             angle_start = random.choice((0, 90, 180, 270))
             angle_size = random.choice((90, 180, 270))
             angle_end = angle_start + angle_size
-            color = arcade.color.MIDNIGHT_BLUE + (ALPHA,) if idx % 2 == 0 else arcade.color.DARK_BLUE_GRAY + (ALPHA,)
-            arc = Arc(self.x, self.y, radius, color, angle_start, angle_end, LINE_WIDTH, 0, 0.0)
+            color = arcade.color.MIDNIGHT_BLUE if idx % 2 == 0 else arcade.color.DARK_BLUE_GRAY
+            arc = Arc(self, self.x, self.y, radius, color, angle_start, angle_end, LINE_WIDTH, 0, 0.0)
             self.arcs.append(arc)
 
     def start_anim(self):
         for arc in self.arcs:
             arc.start_anim()
+        alive_duration = random.uniform(10.0, 90.0)
+        seq = Sequence()
+        fade_duration = 6.0
+        seq.add_keyframe(0, KeyFrame(alpha=0))
+        seq.add_keyframe(fade_duration, KeyFrame(alpha=self.alpha))
+        seq.add_keyframe(fade_duration + alive_duration, KeyFrame(alpha=self.alpha))
+        seq.add_keyframe(fade_duration + alive_duration + fade_duration, KeyFrame(alpha=0), callback=self.coil_done)
+        self.animate(seq)
+
+    def coil_done(self):
+        self.alive = False
+
+    def update(self, time_delta):
+        pass
 
     def draw(self):
         self.arcs.draw()
 
     def can_reap(self):
-        return False
+        return not self.alive
 
 
 class SingleScene(BaseScene):
     def setup(self, win):
-        left, win.screen_width, bottom, win.screen_height = win.get_viewport()
+        left, self.screen_width, bottom, self.screen_height = win.get_viewport()
         self.coils = ActorList()
-        for _ in range(20):
-            x = random.randint(0, win.screen_width)
-            y = random.randint(0, win.screen_height)
-            arc_count = random.randint(3, 7)
-            self.coils.append(Coil(x, y, 25, 25, arc_count))
+        for _ in range(COIL_COUNT):
+            self.add_coil()
+
+    def add_coil(self):
+        x = random.randint(0, self.screen_width)
+        y = random.randint(0, self.screen_height)
+        arc_count = random.randint(3, 7)
+        coil = Coil(x, y, 25, 25, arc_count)
+        self.coils.append(coil)
+        return coil
 
     def enter_scene(self, previous_scene):
         for coil in self.coils:
             coil.start_anim()
 
     def draw(self):
+        self.coils.update(0)
         self.coils.draw()
+        if len(self.coils) < COIL_COUNT:
+            coil = self.add_coil()
+            coil.start_anim()
 
 
 class RotatingArcsSaver(arcade.Window):
