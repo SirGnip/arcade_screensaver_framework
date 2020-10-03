@@ -1,3 +1,4 @@
+import time
 import random
 from dataclasses import dataclass
 import arcade
@@ -7,8 +8,14 @@ from arcade_curtains import Curtains, BaseScene, KeyFrame, Sequence
 from arcade_curtains.animation import AnimationManagerProxy
 
 
-COIL_COUNT = 20
+COIL_COUNT = 15
+MIN_ARCS = 3
+MAX_ARCS = 7
+START_RADIUS = 25
+RADIUS_STEP = 40
+LINE_WIDTH = 30
 MAX_ALPHA = 200
+
 
 @dataclass
 class Arc(Actor):
@@ -67,7 +74,6 @@ class Coil(Actor):
     alive: bool = True
 
     def __post_init__(self):
-        LINE_WIDTH = 20
         self.animate = AnimationManagerProxy(self)
         self.arcs = ActorList()
         radii = [r*self.radius_step+self.start_radius for r in range(self.arc_count)]
@@ -109,8 +115,8 @@ class SingleScene(BaseScene):
     def add_coil(self):
         x = random.randint(0, self.screen_width)
         y = random.randint(0, self.screen_height)
-        arc_count = random.randint(3, 7)
-        coil = Coil(x, y, 25, 25, arc_count)
+        arc_count = random.randint(MIN_ARCS, MAX_ARCS)
+        coil = Coil(x, y, START_RADIUS, RADIUS_STEP, arc_count)
         self.coils.append(coil)
         coil.start_anim(self)
 
@@ -120,6 +126,7 @@ class SingleScene(BaseScene):
 
     def draw(self):
         self.coils.draw()
+        time.sleep(0.02)
 
 
 class RotatingArcsSaver(arcade.Window):
