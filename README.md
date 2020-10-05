@@ -35,3 +35,5 @@ A very simple Python framework for making screen savers for Windows.  Uses the [
     # Note: The "Screen Saver Settings" dialog will feel very "laggy" when your custom
     # screen saver is selected as the dialog is running the screen saver application
     # mutiple times (which takes a couple seconds to start) as you click through the options.
+
+![Hits](http://cc.amazingcounters.com/counter.php?i=3245831&c=9737806)
