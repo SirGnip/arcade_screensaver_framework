@@ -100,7 +100,18 @@ class Coil(Actor):
 
     def coil_done(self):
         self.alive = False
+        self._clean_unused_animators()
         self.parent_scene.add_coil()
+
+    def _clean_unused_animators(self):
+        # implementing a workaround for this issue in curtains: https://github.com/maarten-dp/arcade-curtains/issues/1
+        to_del = []
+        for animator in self.parent_scene.animations.animations:
+            if isinstance(animator.sprite, Arc):
+                if animator.sprite.parent_coil == self:
+                    to_del.append(animator)
+        for animator in to_del:
+            self.parent_scene.animations.animations.remove(animator)
 
     def draw(self):
         self.arcs.draw()
