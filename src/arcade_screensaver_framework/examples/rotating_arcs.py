@@ -64,6 +64,7 @@ class Arc(Actor):
 
 @dataclass
 class Coil(Actor):
+    parent_scene: "SingleScene"
     x: float
     y: float
     start_radius: float
@@ -94,14 +95,18 @@ class Coil(Actor):
         seq.add_keyframe(0.0, KeyFrame(alpha=0))
         seq.add_keyframe(fade_duration, KeyFrame(alpha=MAX_ALPHA))
         seq.add_keyframe(fade_duration + alive_duration, KeyFrame(alpha=MAX_ALPHA))
-        seq.add_keyframe(fade_duration + alive_duration + fade_duration, KeyFrame(alpha=0), callback=parent_scene.add_coil)
+        seq.add_keyframe(fade_duration + alive_duration + fade_duration, KeyFrame(alpha=0), callback=self.coil_done)
         self.animate(seq)
 
     def coil_done(self):
         self.alive = False
+        self.parent_scene.add_coil()
 
     def draw(self):
         self.arcs.draw()
+
+    def update(self, delta_time: float):
+        pass
 
     def can_reap(self):
         return not self.alive
@@ -116,7 +121,7 @@ class SingleScene(BaseScene):
         x = random.randint(0, self.screen_width)
         y = random.randint(0, self.screen_height)
         arc_count = random.randint(MIN_ARCS, MAX_ARCS)
-        coil = Coil(x, y, START_RADIUS, RADIUS_STEP, arc_count)
+        coil = Coil(self, x, y, START_RADIUS, RADIUS_STEP, arc_count)
         self.coils.append(coil)
         coil.start_anim(self)
 
@@ -126,6 +131,7 @@ class SingleScene(BaseScene):
 
     def draw(self):
         self.coils.draw()
+        self.coils.update(0.0)  # to make sure coils get reaped from ActorList
         time.sleep(0.02)
 
 
