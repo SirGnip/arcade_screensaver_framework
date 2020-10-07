@@ -12,6 +12,7 @@ A very simple Python framework for making screen savers for Windows.  Uses the [
     python -m arcade_screensaver_framework.examples.minimal_saver
     python -m arcade_screensaver_framework.examples.flying_lines
     python -m arcade_screensaver_framework.examples.oval_screensaver
+    python -m arcade_screensaver_framework.examples.raindrops
     
     # add "/s" to any screen saver to launch in fullscreen mode
     python -m arcade_screensaver_framework.examples.flying_lines /s

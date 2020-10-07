@@ -2,11 +2,49 @@ import random
 import time
 import arcade
 from arcade_screensaver_framework import screensaver_framework
-from gnp.arcadelib.actor import Actor, ActorList
-from gnp.arcadelib import scriptutl
 
 
-class RingActor(Actor):
+class ActorList(list):
+    """ActorList is a container of Actors. An ActorList is-a Actor, so it can be easily assembled into hierarchies"""
+    # Copied from https://github.com/SirGnip/arcade_examples (instead of naming it as a concrete dependency) in
+    # order to keep this library's dependency list minimal.
+    def draw(self):
+        for actor in self:
+            actor.draw()
+
+    def update(self, delta_time: float):
+        actors_to_delete = []
+        for actor in self:
+            actor.update(delta_time)
+            if actor.can_reap():
+                actors_to_delete.append(actor)
+        for actor_to_del in actors_to_delete:
+            self.remove(actor_to_del)
+
+    def draw(self):
+        for actor in self:
+            actor.draw()
+
+    def can_reap(self) -> bool:
+        return all([actor.can_reap() for actor in self])
+
+    def kill(self):
+        for actor in self:
+            actor.kill()
+        self.clear()
+
+
+def script_sleep(delay: float):
+    """Utility generator that blocks for the given amount of time"""
+    # Copied from https://github.com/SirGnip/arcade_examples (instead of naming it as a concrete dependency) in
+    # order to keep this library's dependency list minimal.
+    start = time.time()
+    end = start + delay
+    while time.time() < end:
+        yield
+
+
+class RingActor:
     def __init__(self, x, y, radius_vel, color):
         self.x = x
         self.y = y
@@ -42,7 +80,7 @@ class RingActorLeader(RingActor):
         j = 1.0
         jv = 0.15
         for _ in range(4):
-            yield from scriptutl.sleep(0.17)
+            yield from script_sleep(0.17)
             jitx = random.uniform(-j, j)
             jity = random.uniform(-j, j)
             jitvel = random.uniform(-jv, jv)
