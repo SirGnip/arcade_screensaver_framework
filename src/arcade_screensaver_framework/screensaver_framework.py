@@ -35,7 +35,6 @@ def on_close(self):
 
 def close_all_windows():
     for win in all_windows:
-        print("closing", win)
         win.close()
 
 
@@ -62,7 +61,6 @@ def make_windows(screensaver_window_class, is_fullscreen):
     screens = display.get_screens()
     preferred_screen = get_preferred_screen(screens)
     for screen in screens:
-        print(screen)
         if screen == preferred_screen:
             # Arcade managed screen with screen saver on it
             win = screensaver_window_class(fullscreen=is_fullscreen, screen=screen)
@@ -78,22 +76,19 @@ def make_windows(screensaver_window_class, is_fullscreen):
 
 def main(screensaver_window_class):
     # Screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
-    print("Command line args:", sys.argv)
     if len(sys.argv) >= 2 and sys.argv[1].startswith("/p"):
-        # mini-screen preview of screen saver
-        print("screen saver launch preview", sys.argv)
+        # generate mini-screen preview for screen saver
+        pass  # skip preview
     elif len(sys.argv) >= 2 and sys.argv[1].startswith("/c"):
         # settings dialog box
         name = Path(sys.argv[0]).stem
         MB_ICONINFORMATION = 0x00000040
         ctypes.windll.user32.MessageBoxW(0, f"This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
-        # run screen saver, in fullscreen mode
-        print("screen saver fullscreen", sys.argv)
+        # run screen saver in fullscreen mode
         make_windows(screensaver_window_class, True)
         arcade.run()
     else:
         # launch with no arguments to test screen saver in windowed mode
-        print("screen saver windowed test mode")
         make_windows(screensaver_window_class, False)
         arcade.run()
