@@ -13,16 +13,18 @@ setuptools.setup(
 
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},
+    scripts=["bin/install_screensaver.bat"],
+
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: Microsoft :: Windows",
     ],
-
     python_requires='>=3.7',
     install_requires=[
         # Arcade included PyInstaller "hook": https://github.com/pythonarcade/arcade/issues/754
         "arcade>=2.4.3",
         # Pymunk released fix for PyInstaller with --onefile: https://github.com/viblo/pymunk/issues/154
         "pymunk>=5.7.0",
+        "pyinstaller>=4.0",
     ],
 )

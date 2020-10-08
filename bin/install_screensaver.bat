@@ -1,39 +1,43 @@
-@REM This script must be executed from a command prompt run "as administrator".
-@REM Change current working directory to the root of this repo before running this script.
-@REM First command line argument is the path to your screen saver entry point
-@REM Second command line argument is the base name of your screen saver script (NO .py extension)
-@REM
-@REM   Example: install_screensaver.bat src\arcade_screensaver_framework minimal_saver
-@echo on
-
-@echo ===== Input =====
-@echo Path: %1
-@echo Base filename: %2
-@echo Using %1\%2.py to generate and install a screen saver
-
-@echo.
-@echo.
-@echo ===== Activate virtual environment =====
-call venv\Scripts\activate
-@echo on
-where python
-
-@echo.
-@echo.
-@echo ===== Remove any existing pyinstaller build or dist directories =====
-rmdir /S /Q build dist
-
-@echo.
-@echo.
-@echo ===== Run pyinstaller to make .exe =====
-pyinstaller %1\%2.py --windowed --onefile
+@echo off
+echo A few things to check before allowing this script to continue:
 echo.
-dir dist\
+echo 1) This script *must* be executed from a Command Prompt window that was
+echo    started with "Run as administrator". Otherwise, this script will not
+echo    have the necessary permissions to copy your screen saver to the
+echo    \Windows\System32 system directory.
+echo.
+echo 2) If your screen saver is running from a virtual environment, that
+echo    environment must be active before running this script.
+echo.
+echo 3) Ensure the .py file containing your screen saver is passed as an
+echo    argument to this script:
+echo.
+echo       Example: install_screensaver src\arcade_screensaver_framework\examples\minimal_saver.py
+echo.
+pause
+
+echo.
+echo Bundling and installing screen saver: %1
+for /F %%i in ("%1") do set BASE_FILENAME=%%~ni
+
+@echo on
+@echo.
+@echo.
+@echo ===== Running pyinstaller to make bundled .exe =====
+pyinstaller %1 --windowed --onefile
 
 @echo.
 @echo.
-@echo ===== Copy %2.exe to Windows\System32 as a .scr file =====
-copy dist\%2.exe dist\%2.scr
-move dist\%2.scr c:\Windows\System32\
+@set TARG_DIR=%SystemRoot%\System32
+@echo ===== Copying dist\%BASE_FILENAME%.exe to %TARG_DIR% as a .scr file =====
+copy dist\%BASE_FILENAME%.exe dist\%BASE_FILENAME%.scr
+move dist\%BASE_FILENAME%.scr %TARG_DIR%
+
 @echo.
-dir c:\Windows\System32\*.scr
+@echo.
+@echo ===== Screen savers currently in %TARG_DIR%:
+@dir %TARG_DIR%\*.scr
+@echo.
+@echo.
+@echo COMPLETE! The new screen saver should now be available in Window's Screen
+@echo Saver Settings dialog.
