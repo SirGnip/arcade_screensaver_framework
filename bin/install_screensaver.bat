@@ -25,13 +25,25 @@ for /F %%i in ("%1") do set BASE_FILENAME=%%~ni
 @echo.
 @echo ===== Running pyinstaller to make bundled .exe =====
 pyinstaller %1 --windowed --onefile
+@if %errorlevel% neq 0 (
+    @echo ERROR encountered. Details above...
+    exit /b %errorlevel%
+)
 
 @echo.
 @echo.
 @set TARG_DIR=%SystemRoot%\System32
 @echo ===== Copying dist\%BASE_FILENAME%.exe to %TARG_DIR% as a .scr file =====
 copy dist\%BASE_FILENAME%.exe dist\%BASE_FILENAME%.scr
+@if %errorlevel% neq 0 (
+    @echo ERROR encountered. Details above...
+    exit /b %errorlevel%
+)
 move dist\%BASE_FILENAME%.scr %TARG_DIR%
+@if %errorlevel% neq 0 (
+    @echo ERROR encountered. Details above...
+    exit /b %errorlevel%
+)
 
 @echo.
 @echo.
