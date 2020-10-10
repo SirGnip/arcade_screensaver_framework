@@ -48,8 +48,8 @@ class OvalShape:
 class MyScreensaver(arcade.Window):
     """ Main application class. """
 
-    def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen=fullscreen, screen=screen)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
 
         self.shapes = []

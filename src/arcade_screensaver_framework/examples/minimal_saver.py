@@ -3,8 +3,8 @@ from arcade_screensaver_framework import screensaver_framework
 
 
 class MinimalSaver(arcade.Window):
-    def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen=fullscreen, screen=screen)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.x = 0
 
     def on_draw(self):

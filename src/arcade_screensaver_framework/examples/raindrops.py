@@ -95,8 +95,8 @@ class RingActorLeader(RingActor):
 
 
 class RaindropScreensaver(arcade.Window):
-    def __init__(self, fullscreen, screen):
-        super().__init__(fullscreen=fullscreen, screen=screen)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         arcade.set_background_color(arcade.color.BLACK)
 
         left, self.screen_width, bottom, self.screen_height = self.get_viewport()
