@@ -7,34 +7,34 @@ all_windows = []
 
 
 # Event handlers that can be applied to instances of Arcade.Window and Pyglet.window.Window
-def on_keyboard_press(self, symbol, modifiers):
-    close_all_windows()
+def _on_keyboard_press(self, symbol, modifiers):
+    _close_all_windows()
 
 
-def on_mouse_press(self, x, y, button, modifiers):
-    close_all_windows()
+def _on_mouse_press(self, x, y, button, modifiers):
+    _close_all_windows()
 
 
-def on_mouse_motion(self, x, y, dx, dy):
+def _on_mouse_motion(self, x, y, dx, dy):
     # A Window almost always gets an initial on_mouse_motion event when window opens.
     # Ignore the first motion event. I think a motion event is triggered when the
     # window is opening and the mouse cursor is already inside the window's boundary.
     if self.first_mouse_motion_event:
         self.first_mouse_motion_event = False
         return
-    close_all_windows()
+    _close_all_windows()
 
 
-def on_close(self):
-    close_all_windows()
+def _on_close(self):
+    _close_all_windows()
 
 
-def close_all_windows():
+def _close_all_windows():
     for win in all_windows:
         win.close()
 
 
-def get_preferred_screen(screens):
+def _get_preferred_screen(screens):
     """Choose the screen with the most pixels to show the screensaver on"""
     ordered_screens = [(s.width*s.height, idx, s) for idx, s in enumerate(screens)]
     ordered_screens.sort()  # sort by # of pixels, then screen index, then object
@@ -43,19 +43,19 @@ def get_preferred_screen(screens):
 
 def _make_windows(screensaver_window_class, is_fullscreen, win_kwargs):
     # Monkeypatch Arcade and Pyglet window classes (for easier code-reuse)
-    screensaver_window_class.on_key_press = on_keyboard_press
-    screensaver_window_class.on_mouse_press = on_mouse_press
-    screensaver_window_class.on_mouse_motion = on_mouse_motion
-    screensaver_window_class.on_close = on_close
+    screensaver_window_class.on_key_press = _on_keyboard_press
+    screensaver_window_class.on_mouse_press = _on_mouse_press
+    screensaver_window_class.on_mouse_motion = _on_mouse_motion
+    screensaver_window_class.on_close = _on_close
 
-    pyglet.window.Window.on_key_press = on_keyboard_press
-    pyglet.window.Window.on_mouse_press = on_mouse_press
-    pyglet.window.Window.on_mouse_motion = on_mouse_motion
-    pyglet.window.Window.on_close = on_close
+    pyglet.window.Window.on_key_press = _on_keyboard_press
+    pyglet.window.Window.on_mouse_press = _on_mouse_press
+    pyglet.window.Window.on_mouse_motion = _on_mouse_motion
+    pyglet.window.Window.on_close = _on_close
 
     display = pyglet.canvas.get_display()
     screens = display.get_screens()
-    preferred_screen = get_preferred_screen(screens)
+    preferred_screen = _get_preferred_screen(screens)
     main_win = None
     for screen in screens:
         if screen == preferred_screen:
