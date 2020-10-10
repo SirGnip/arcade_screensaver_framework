@@ -3,7 +3,7 @@ import ctypes
 from pathlib import Path
 import pyglet
 
-all_windows = []
+_all_windows = []
 
 
 # Event handlers that can be applied to instances of Arcade.Window and Pyglet.window.Window
@@ -30,7 +30,7 @@ def _on_close(self):
 
 
 def _close_all_windows():
-    for win in all_windows:
+    for win in _all_windows:
         win.close()
 
 
@@ -69,7 +69,7 @@ def _make_windows(screensaver_window_class, is_fullscreen, win_kwargs):
             win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
         win.set_mouse_visible(False)
         win.first_mouse_motion_event = True
-        all_windows.append(win)
+        _all_windows.append(win)
     return main_win
 
 
