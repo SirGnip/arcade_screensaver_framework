@@ -143,8 +143,8 @@ height and width dynamically.
 
 For an application to be an official Windows screen saver, it must do the following things:
 
-| Requirements | How framework fulfills it |
-|--------------|---------------------------|
+| Requirements | How this framework fulfills requirement |
+|--------------|-----------------------------------------|
 | Must be a Windows .exe file. | The `install_screensaver.bat` script uses [PyInstaller](https://www.pyinstaller.org/) to bundle the Python script into an .exe. |
 | The .exe must be renamed to have a `.scr` extension and be saved into a specific Windows system directory. | Handled by `install_screensaver.bat` script. | 
 | Must handle a few command line flags when run. This is how Windows controls the screen saver. | This framework parses the command line flags and responds appropriately. |  
