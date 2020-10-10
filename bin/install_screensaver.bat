@@ -6,11 +6,11 @@ echo    started with "Run as administrator". Otherwise, this script will not
 echo    have the necessary permissions to copy your screen saver to the
 echo    \Windows\System32 system directory.
 echo.
-echo 2) If your screen saver is running from a virtual environment, that
-echo    environment must be active before running this script.
+echo 2) If your screen saver script requires a virtual environment, that
+echo    environment must be active before running this installation script.
 echo.
 echo 3) Ensure the .py file containing your screen saver is passed as an
-echo    argument to this script:
+echo    argument to the install script:
 echo.
 echo       Example: install_screensaver src\arcade_screensaver_framework\examples\minimal_saver.py
 echo.
