@@ -41,7 +41,7 @@ def get_preferred_screen(screens):
     return ordered_screens[-1][2]  # return screen object from end of sorted list
 
 
-def _make_windows(screensaver_window_class, is_fullscreen, width, height, win_kwargs):
+def _make_windows(screensaver_window_class, is_fullscreen, win_kwargs):
     # Monkeypatch Arcade and Pyglet window classes (for easier code-reuse)
     screensaver_window_class.on_key_press = on_keyboard_press
     screensaver_window_class.on_mouse_press = on_mouse_press
@@ -61,25 +61,23 @@ def _make_windows(screensaver_window_class, is_fullscreen, width, height, win_kw
         if screen == preferred_screen:
             # Arcade managed screen with screen saver on it
             print("Preferred screen:", screen)
-            win = screensaver_window_class(width, height, fullscreen=is_fullscreen, screen=screen, **win_kwargs)
+            win = screensaver_window_class(fullscreen=is_fullscreen, screen=screen, **win_kwargs)
             main_win = win
         else:
             # Blank Pyglet windows will be used for all non-primary screens
             print("Secondary screen:", screen)
-            win = pyglet.window.Window(width, height, fullscreen=is_fullscreen, screen=screen)
+            win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
         win.set_mouse_visible(False)
         win.first_mouse_motion_event = True
-        if not is_fullscreen:
-            win.set_location(screen.x + 50, screen.y + 50)
         all_windows.append(win)
     return main_win
 
 
-def create_saver_win(screensaver_window_class, width, height, force_fullscreen_resolution, **win_kwargs):
-    forbidden_kwargs = {"width", "height", "fullscreen", "screen"}
+def create_screensaver_window(screensaver_window_class, **win_kwargs):
+    forbidden_kwargs = {"fullscreen", "screen"}
     invalid_kwargs = forbidden_kwargs.intersection(set(win_kwargs))
     if any(invalid_kwargs):
-        raise Exception(f"Detected forbidden keyword argument(s) passed to create_saver_win() in 'win_kwargs': {invalid_kwargs}. These arguments are controlled by arcade_screensaver_framework.")
+        raise Exception(f"Detected forbidden keyword argument(s) passed to create_screensaver_window() in 'win_kwargs': {invalid_kwargs}. These arguments are controlled by arcade_screensaver_framework.")
 
     # Microsoft Windows screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
     if len(sys.argv) >= 2 and sys.argv[1].startswith("/p"):
@@ -92,12 +90,9 @@ def create_saver_win(screensaver_window_class, width, height, force_fullscreen_r
         ctypes.windll.user32.MessageBoxW(0, "This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
         # run screen saver in fullscreen mode
-        main_win = _make_windows(screensaver_window_class, True, width, height, win_kwargs)
-        if force_fullscreen_resolution:
-            print(f"Scaling fullscreen {width}x{height} content to", main_win.screen)
-            main_win.set_fullscreen(True, width=width, height=height)
+        main_win = _make_windows(screensaver_window_class, True, win_kwargs)
         return main_win
     else:
         # run screen saver in windowed mode (no arguments)
-        main_win = _make_windows(screensaver_window_class, False, width, height, win_kwargs)
+        main_win = _make_windows(screensaver_window_class, False, win_kwargs)
         return main_win

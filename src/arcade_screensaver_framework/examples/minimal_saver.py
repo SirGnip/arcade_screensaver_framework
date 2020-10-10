@@ -14,4 +14,5 @@ class MinimalSaver(arcade.Window):
 
 
 if __name__ == "__main__":
-    screensaver_framework.main(MinimalSaver)
+    window = screensaver_framework.create_screensaver_window(MinimalSaver)
+    arcade.run()

@@ -118,4 +118,5 @@ class FlyingLinesScreensaver(arcade.Window):
 
 
 if __name__ == "__main__":
-    screensaver_framework.main(FlyingLinesScreensaver)
+    screensaver_framework.create_screensaver_window(FlyingLinesScreensaver)
+    arcade.run()

@@ -117,4 +117,5 @@ class RaindropScreensaver(arcade.Window):
 
 
 if __name__ == "__main__":
-    screensaver_framework.main(RaindropScreensaver)
+    screensaver_framework.create_screensaver_window(RaindropScreensaver)
+    arcade.run()

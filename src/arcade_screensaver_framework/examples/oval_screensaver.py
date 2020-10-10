@@ -85,4 +85,5 @@ class MyScreensaver(arcade.Window):
 
 
 if __name__ == "__main__":
-    screensaver_framework.main(MyScreensaver)
+    screensaver_framework.create_screensaver_window(MyScreensaver)
+    arcade.run()
