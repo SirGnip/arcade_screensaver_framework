@@ -2,11 +2,7 @@ import sys
 import ctypes
 from pathlib import Path
 import pyglet
-import arcade
 
-SCREEN_WIDTH = 1280  # 720p resolution
-SCREEN_HEIGHT = 720
-SCREEN_TITLE = "Arcade screen saver"
 all_windows = []
 
 
@@ -45,7 +41,7 @@ def get_preferred_screen(screens):
     return ordered_screens[-1][2]  # return screen object from end of sorted list
 
 
-def make_windows(screensaver_window_class, is_fullscreen):
+def _make_windows(screensaver_window_class, is_fullscreen, width, height, win_kwargs):
     # Monkeypatch Arcade and Pyglet window classes (for easier code-reuse)
     screensaver_window_class.on_key_press = on_keyboard_press
     screensaver_window_class.on_mouse_press = on_mouse_press
@@ -60,22 +56,32 @@ def make_windows(screensaver_window_class, is_fullscreen):
     display = pyglet.canvas.get_display()
     screens = display.get_screens()
     preferred_screen = get_preferred_screen(screens)
+    main_win = None
     for screen in screens:
         if screen == preferred_screen:
             # Arcade managed screen with screen saver on it
-            win = screensaver_window_class(fullscreen=is_fullscreen, screen=screen)
+            print("Preferred screen:", screen)
+            win = screensaver_window_class(width, height, fullscreen=is_fullscreen, screen=screen, **win_kwargs)
+            main_win = win
         else:
-            # Pyglet managed screen that is simply left clear
-            win = pyglet.window.Window(fullscreen=is_fullscreen, screen=screen)
+            # Blank Pyglet windows will be used for all non-primary screens
+            print("Secondary screen:", screen)
+            win = pyglet.window.Window(width, height, fullscreen=is_fullscreen, screen=screen)
         win.set_mouse_visible(False)
         win.first_mouse_motion_event = True
         if not is_fullscreen:
             win.set_location(screen.x + 50, screen.y + 50)
         all_windows.append(win)
+    return main_win
 
 
-def main(screensaver_window_class):
-    # Screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
+def create_saver_win(screensaver_window_class, width, height, force_fullscreen_resolution, **win_kwargs):
+    forbidden_kwargs = {"width", "height", "fullscreen", "screen"}
+    invalid_kwargs = forbidden_kwargs.intersection(set(win_kwargs))
+    if any(invalid_kwargs):
+        raise Exception(f"Detected forbidden keyword argument(s) passed to create_saver_win() in 'win_kwargs': {invalid_kwargs}. These arguments are controlled by arcade_screensaver_framework.")
+
+    # Microsoft Windows screen saver command line arguments: https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line
     if len(sys.argv) >= 2 and sys.argv[1].startswith("/p"):
         # generate mini-screen preview for screen saver
         pass  # skip preview
@@ -83,12 +89,15 @@ def main(screensaver_window_class):
         # settings dialog box
         name = Path(sys.argv[0]).stem
         MB_ICONINFORMATION = 0x00000040
-        ctypes.windll.user32.MessageBoxW(0, f"This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
+        ctypes.windll.user32.MessageBoxW(0, "This screen saver has no options that you can set.", f"{name} Screen Saver", MB_ICONINFORMATION)
     elif len(sys.argv) >= 2 and sys.argv[1] == "/s":
         # run screen saver in fullscreen mode
-        make_windows(screensaver_window_class, True)
-        arcade.run()
+        main_win = _make_windows(screensaver_window_class, True, width, height, win_kwargs)
+        if force_fullscreen_resolution:
+            print(f"Scaling fullscreen {width}x{height} content to", main_win.screen)
+            main_win.set_fullscreen(True, width=width, height=height)
+        return main_win
     else:
-        # launch with no arguments to test screen saver in windowed mode
-        make_windows(screensaver_window_class, False)
-        arcade.run()
+        # run screen saver in windowed mode (no arguments)
+        main_win = _make_windows(screensaver_window_class, False, width, height, win_kwargs)
+        return main_win
