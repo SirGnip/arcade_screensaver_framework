@@ -3,17 +3,27 @@
 A very simple Python framework that allows you to write official Windows screen savers using
 Python and the [Arcade](https://github.com/pythonarcade/arcade) 2D video game library.
 
-Most Arcade applications that use the class-centric Arcade API (ex: derive a window from `arcade.Window`)
-can be made into a Windows screen saver. Usually, it is as simple as adding the framework import to your
-existing application and creating your window with `window = screensaver_framework.create_saver_win(MyGameClass)`
+Most Arcade scripts that use the class-centric Arcade API (ex: derive a window from `arcade.Window`)
+can easily be made into a Windows screen saver with this framework. Often, it is as simple as adding the
+framework import to an existing Arcade script and creating your window object with `window = screensaver_framework.create_saver_win(MyGameClass)`
+
+### Examples
+
+A few simple examples are included along with the framework. Flying Lines, Raindrops, and Ovals:
+
+![Flying Lines](https://sirgnip.github.io/repo/arcade_screensaver_framework/flying_lines_30fps_40pct.gif)
+![Raindrops](https://sirgnip.github.io/repo/arcade_screensaver_framework/raindrops_30fps_40pct.gif)
+![Ovals](https://sirgnip.github.io/repo/arcade_screensaver_framework/ovals_30fps_40pct.gif)
+
+### Features
  
-This framework provides your app:
+This framework provides your script:
 * What it needs to interface with Windows so your Arcade application is seen as an official Windows screen saver.
-* Input event handling to automatically exit the application when any keyboard or mouse input is detected.
-* Handling of multi-monitor setups (draws screen saver visuals on largest monitor)
+* Input event handling to automatically close the script when any keyboard or mouse input is detected.
+* Handling of multi-monitor setups (draws screen saver visuals on largest monitor and shows black screen on the others)
 * An included installation script that takes your Arcade application and:
-    * Bundles it into a one-file .exe (via PyInstaller) necessary for Windows screen savers
-    * Installs the bundle in the appropriate place with the appropriate name so that Windows can find it.
+    * Bundles your script and its dependencies into a one-file .exe (via PyInstaller) necessary for Windows screen savers
+    * Copies the bundled executable into the appropriate with the appropriate name so that Windows recognizes it as a screen saver.
 
 # Quick start
 
@@ -28,8 +38,9 @@ Manually run screen saver examples (`/s` runs app in fullscreen)
     python -m arcade_screensaver_framework.examples.oval_screensaver /s
     python -m arcade_screensaver_framework.examples.raindrops /s
 
-Create a fully functional Windows screen saver by installing one of the provided example screen savers.
-Must run this command from a Command Prompt that was opened with "Run as administrator".
+Install one of the included example screen savers as a fully functional Windows screen saver.
+Run the command below from a Command Prompt. This Command Prompt **MUST** be run with "Run as administrator". Make
+sure the Python environment that you installed the framework to is active.
     
     # The example scripts are often located in a path similar to the following.
     # Your actual path may vary...
@@ -40,19 +51,21 @@ After installation, you need to go into Window's "Screen Saver Settings" dialog 
 select your newly installed screen saver.  This is usually accomplished by following steps similar to:
 
 * Right click on the Windows desktop
-* Select "Personalilze"
-* Click "Lock screen" in left pane
-* Scroll to the bottom of the dialog and click link labeled "Screen saver settings"
-* In the "Screen Saver Settings" dialog, select your screen saver from the "dropdown"
-* Enter a "Wait" time for how long your computer must be idle before it starts the screen saver
+* Select "Personalize"
+* Click "Lock screen" in the left pane
+* Scroll to the bottom of the dialog and click the link labeled "Screen saver settings"
+* In the "Screen Saver Settings" dialog, select your newly installed screen saver from the dropdown
+* Enter a "Wait" time for how long your computer must be idle before it displays the screen saver
 * Click the "Preview" button to see your screen saver 
 
 *Note: The "Screen Saver Settings" dialog will feel very sluggish while your have a custom
 screen saver selected. This is because Windows is running the screen saver application
 in the background as you click through the options in the dialog. Each run of the
-application takes a couple seconds to complete.*
+application takes a couple seconds to complete. This is because of how PyInstaller bundles Python scripts.*
 
 # Write your own screen saver
+
+## Quick demonstration
 
 Install framework:
 
@@ -77,19 +90,17 @@ Save the following script as "my_test.py"
         screensaver_framework.create_screensaver_window(MinimalSaver)
         arcade.run()
 
-Run script manually to test (notice how it exists when you cause any input events):
+Run script manually to test (notice how it exits when you cause any input events):
 
     python my_test.py /s
     
-Open a Command Prompt terminal with "Run as administrator", make sure the proper Python environment is active and then run:
+Open a Command Prompt terminal with "Run as administrator", change directory to where your `my_test.py` script is, active your Python environment, and then run:
 
     install_screensaver my_test.py
 
-As the `arcade_screensaver_framework` handles input events, your code shouldn't have any `on_keyboard_press`, `on_mouse_press`, `on_mouse_motion` event handlers.
+As the `arcade_screensaver_framework` handles input events for you, your code doesn't need any `on_keyboard_press`, `on_mouse_press`, `on_mouse_motion` event handlers.
 
-# Reference
-
-## What is required in a screen saver?
+## Steps required
 
 To write an Arcade script that can be used as a screen saver, just a few things need to be done in the code.
 Refer to the `my_test.py` example above for a concrete illustration of the points below.
@@ -111,20 +122,21 @@ to pass a couple arguments into the `__init__` method:
         self.x = 0
 
 Fourth, instead of creating the Arcade window with the typical `win = MyWindow()`, you need to
-use the  `arcade_screensaver_framework` to create the window for you:
+use the `arcade_screensaver_framework` to create the window for you:
 
     win = screensaver_framework.create_screensaver_window(MyWindow)
     arcade.run()
 
-## Details:
+## Implementation details
 
-### Input Events
+### Input events
 
- The framework handles closing the application when receiving input. So, do not
+The framework handles closing the application when receiving input. So, do not
 try to provide input event handlers like `on_mouse_motion` or `on_keyboard_press`
 as these could interfere with arcade_screensaver_framework's operation.
 
 ### Resolution selection
+
 When the screen saver is run in fullscreen mode, the framework chooses the most
 appropriate screen resolution. This way, your application can run on computers
 with screens of any size. This means your screen saver should query the size of
@@ -139,7 +151,7 @@ height and width dynamically.
 - second parameter (optional): can specify keyword arguments that will be passed to the
 `Windows` constructor
 
-### Windows screen saver interface
+### Requirements for an application to function as a Windows screen saver
 
 For an application to be an official Windows screen saver, it must do the following things:
 
