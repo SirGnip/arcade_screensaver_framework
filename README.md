@@ -164,4 +164,4 @@ For an application to be an official Windows screen saver, it must do the follow
 
 Reference: Windows [Screen Saver command line arguments](https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line)
     
-![Hits](http://cc.amazingcounters.com/counter.php?i=3245831&c=9737806)
+[![HitCount](http://hits.dwyl.com/SirGnip/arcade_screensaver_framework.svg)](http://hits.dwyl.com/SirGnip/arcade_screensaver_framework)
