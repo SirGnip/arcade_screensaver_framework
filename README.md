@@ -163,5 +163,7 @@ For an application to be an official Windows screen saver, it must do the follow
 | Executable must exit when it receives keyboard or mouse input events. | Input handling is taken care of by the framework. |
 
 Reference: Windows [Screen Saver command line arguments](https://docs.microsoft.com/en-us/troubleshoot/windows/win32/screen-saver-command-line)
-    
-[![HitCount](http://hits.dwyl.com/SirGnip/arcade_screensaver_framework.svg)](http://hits.dwyl.com/SirGnip/arcade_screensaver_framework)
+
+![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2FSirGnip%2Farcade_screensaver_framework)
+
+![HitCount](http://hits.dwyl.com/SirGnip/arcade_screensaver_framework.svg)
