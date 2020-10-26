@@ -129,6 +129,18 @@ use the `arcade_screensaver_framework` to create the window for you:
 
 ## Implementation details
 
+### Listing this framework as a dependency
+
+To include this library in a `requirements.txt` file, use this syntax:
+
+    git+https://github.com/SirGnip/arcade_screensaver_framework@v0.0.1
+
+To include this library in a setup.py file, use syntax something like this:
+
+    install_requires=[
+        "arcade_screensaver_framework @ http://github.com/SirGnip/arcade_screensaver_framework/tarball/v0.0.1",
+    ],
+
 ### Input events
 
 The framework handles closing the application when receiving input. So, do not
